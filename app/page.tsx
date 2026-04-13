@@ -1,101 +1,148 @@
-import Image from "next/image";
+import QuizGrid from "@/components/quiz/QuizGrid"
+import type { QuestionWithCategory } from "@/types"
 
-export default function Home() {
+// Static seed data for Phase 1 — replaced with DB queries in Phase 2
+const staticQuestions: QuestionWithCategory[] = [
+  {
+    id: "q-001",
+    questionText: "What does end-to-end encryption protect against?",
+    optionA: "Encryption only works when the sender is online",
+    optionB: "Messages can only be read by the sender and recipient — not even the service provider",
+    optionC: "Only the recipient's device is protected",
+    correctOption: "B",
+    explanation:
+      "E2E encryption means only the communicating users can decrypt messages. The platform sees only ciphertext.",
+    difficulty: "BEGINNER",
+    status: "APPROVED",
+    categoryId: "cat-001",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    category: {
+      id: "cat-001",
+      slug: "digital-privacy-surveillance",
+      name: "Digital Privacy & Surveillance",
+    },
+  },
+  {
+    id: "q-002",
+    questionText: "What is 'doxing'?",
+    optionA: "Publishing someone's private personal information online without consent",
+    optionB: "A type of phishing email",
+    optionC: "Blocking someone on a social platform",
+    correctOption: "A",
+    explanation:
+      "Doxing involves researching and publicly exposing private details like home addresses, phone numbers, or workplaces to enable harassment.",
+    difficulty: "BEGINNER",
+    status: "APPROVED",
+    categoryId: "cat-002",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    category: {
+      id: "cat-002",
+      slug: "online-harassment-safety",
+      name: "Online Harassment & Safety",
+    },
+  },
+  {
+    id: "q-003",
+    questionText: "Why can facial recognition systems perform worse on darker-skinned faces?",
+    optionA: "The cameras used are lower quality",
+    optionB: "Training datasets have historically overrepresented lighter-skinned faces",
+    optionC: "Darker skin reflects less light in all conditions",
+    correctOption: "B",
+    explanation:
+      "When training data is not representative, models learn skewed patterns. MIT studies found error rates for darker-skinned women up to 34% vs under 1% for lighter-skinned men.",
+    difficulty: "BEGINNER",
+    status: "APPROVED",
+    categoryId: "cat-003",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    category: {
+      id: "cat-003",
+      slug: "algorithmic-bias-ai-ethics",
+      name: "Algorithmic Bias & AI Ethics",
+    },
+  },
+  {
+    id: "q-004",
+    questionText: "What is the minimum contrast ratio recommended by WCAG AA for normal text?",
+    optionA: "2:1",
+    optionB: "3:1",
+    optionC: "4.5:1",
+    correctOption: "C",
+    explanation:
+      "WCAG 2.1 Level AA requires a contrast ratio of at least 4.5:1 for normal text and 3:1 for large text.",
+    difficulty: "INTERMEDIATE",
+    status: "APPROVED",
+    categoryId: "cat-004",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    category: {
+      id: "cat-004",
+      slug: "digital-accessibility-inclusion",
+      name: "Digital Accessibility & Inclusion",
+    },
+  },
+  {
+    id: "q-005",
+    questionText: "What does Indigenous data sovereignty refer to?",
+    optionA:
+      "The right of Indigenous peoples to govern how data about their communities is collected and used",
+    optionB: "Government control of all internet data within a country",
+    optionC: "Ownership of data by the company that collects it",
+    correctOption: "A",
+    explanation:
+      "Indigenous data sovereignty asserts that Indigenous communities should control research and data involving their people, lands, and cultures.",
+    difficulty: "INTERMEDIATE",
+    status: "APPROVED",
+    categoryId: "cat-005",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    category: {
+      id: "cat-005",
+      slug: "data-sovereignty-rights",
+      name: "Data Sovereignty & Rights",
+    },
+  },
+  {
+    id: "q-006",
+    questionText: "What is 'non-consensual intimate image sharing' (NCII)?",
+    optionA:
+      "Sharing someone's private sexual images without their consent, often as abuse or coercion",
+    optionB: "Sharing health records without permission",
+    optionC: "Uploading images to unsecured cloud storage",
+    correctOption: "A",
+    explanation:
+      "NCII is a form of gender-based violence. It is illegal in many jurisdictions and causes severe psychological harm.",
+    difficulty: "BEGINNER",
+    status: "APPROVED",
+    categoryId: "cat-006",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    category: {
+      id: "cat-006",
+      slug: "gender-based-cyber-violence",
+      name: "Gender-Based Cyber Violence",
+    },
+  },
+]
+
+export default function HomePage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold">Questions</h2>
+        <p className="text-muted-foreground mt-1">
+          Explore intersectional cybersecurity topics
+        </p>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <QuizGrid
+        questions={staticQuestions}
+        bookmarkedIds={new Set()}
+        userCollections={[]}
+        isAuthenticated={false}
+      />
     </div>
-  );
+  )
 }
