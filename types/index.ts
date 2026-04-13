@@ -38,7 +38,7 @@ export interface Collection {
 }
 
 export interface CollectionWithCount extends Collection {
-  _count: { items: number }
+  itemCount: number
 }
 
 export interface UserStats {

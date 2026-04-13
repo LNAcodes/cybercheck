@@ -1,8 +1,14 @@
-import { PrismaPg } from "@prisma/adapter-pg"
-import { PrismaClient, Difficulty, QuestionStatus, OptionLetter } from "@prisma/client"
+import mongoose from "mongoose"
+import { Category } from "../lib/models/Category"
+import { Question } from "../lib/models/Question"
+import type { Difficulty, OptionLetter, QuestionStatus } from "../types"
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL as string })
-const prisma = new PrismaClient({ adapter })
+const MONGODB_URI = process.env.MONGODB_URI
+
+if (!MONGODB_URI) {
+  console.error("MONGODB_URI environment variable is not set")
+  process.exit(1)
+}
 
 const categories = [
   {
@@ -211,8 +217,7 @@ const questions: Array<{
   {
     questionText:
       "Under the GDPR, which of the following is a data subject right?",
-    optionA:
-      "The right to access your personal data and request its deletion",
+    optionA: "The right to access your personal data and request its deletion",
     optionB: "The right to read any employee's HR file",
     optionC: "The right to opt out of all advertising worldwide",
     correctOption: "A",
@@ -225,8 +230,7 @@ const questions: Array<{
 
   // ─── Gender-Based Cyber Violence ──────────────────────────────────────────
   {
-    questionText:
-      "What is 'non-consensual intimate image sharing' (NCII)?",
+    questionText: "What is 'non-consensual intimate image sharing' (NCII)?",
     optionA:
       "Sharing someone's private sexual images without their consent, often as abuse or coercion",
     optionB: "Sharing health records without permission",
@@ -256,8 +260,7 @@ const questions: Array<{
   {
     questionText:
       "Why might LGBTQ+ people face heightened phishing risk compared to the general population?",
-    optionA:
-      "They use older devices on average",
+    optionA: "They use older devices on average",
     optionB:
       "Attackers exploit community-specific apps and events as lures, and targets may fear reporting attacks due to potential outing",
     optionC: "They have weaker passwords on average",
@@ -269,8 +272,7 @@ const questions: Array<{
     categorySlug: "cybersecurity-marginalized-communities",
   },
   {
-    questionText:
-      "What is 'outing' in a digital security context?",
+    questionText: "What is 'outing' in a digital security context?",
     optionA: "Logging out of all active sessions simultaneously",
     optionB:
       "Exposing someone's sexuality, gender identity, immigration status, or other sensitive identity information without their consent",
@@ -286,7 +288,8 @@ const questions: Array<{
   // ─── Digital Divide & Equity ──────────────────────────────────────────────
   {
     questionText: "What does the term 'digital divide' primarily describe?",
-    optionA: "The gap between the number of web pages in English versus other languages",
+    optionA:
+      "The gap between the number of web pages in English versus other languages",
     optionB:
       "The unequal access to internet, devices, and digital literacy across socioeconomic, geographic, and demographic lines",
     optionC: "The technical difference between 4G and 5G networks",
@@ -300,8 +303,7 @@ const questions: Array<{
   {
     questionText:
       "Which structural factor most explains why rural and low-income communities have lower broadband penetration?",
-    optionA:
-      "Rural residents prefer not to use the internet",
+    optionA: "Rural residents prefer not to use the internet",
     optionB:
       "Sparse populations make infrastructure investment less profitable for private carriers, and low incomes create cost barriers",
     optionC: "Government regulations prohibit broadband in rural areas",
@@ -375,44 +377,41 @@ const questions: Array<{
 ]
 
 async function main() {
-  console.log("Seeding database...")
+  await mongoose.connect(MONGODB_URI as string)
+  console.log("Connected to MongoDB. Seeding...")
 
-  // Upsert categories
-  const categoryMap: Record<string, string> = {}
+  const categoryMap: Record<string, mongoose.Types.ObjectId> = {}
 
   for (const categoryData of categories) {
-    const category = await prisma.category.upsert({
-      where: { slug: categoryData.slug },
-      update: {},
-      create: categoryData,
-    })
-    categoryMap[categoryData.slug] = category.id
+    const category = await Category.findOneAndUpdate(
+      { slug: categoryData.slug },
+      { $setOnInsert: categoryData },
+      { upsert: true, new: true }
+    )
+    categoryMap[categoryData.slug] = category._id
     console.log(`  Category: ${category.name}`)
   }
 
-  // Create questions
   let questionCount = 0
 
   for (const questionData of questions) {
     const categoryId = categoryMap[questionData.categorySlug]
     if (!categoryId) {
-      console.warn(`  Skipping question — unknown slug: ${questionData.categorySlug}`)
+      console.warn(
+        `  Skipping question — unknown slug: ${questionData.categorySlug}`
+      )
       continue
     }
 
     const { categorySlug, ...questionFields } = questionData
 
-    await prisma.question.create({
-      data: {
-        ...questionFields,
-        categoryId,
-      },
-    })
-
+    await Question.create({ ...questionFields, categoryId })
     questionCount++
   }
 
-  console.log(`\nDone. Seeded ${categories.length} categories and ${questionCount} questions.`)
+  console.log(
+    `\nDone. Seeded ${categories.length} categories and ${questionCount} questions.`
+  )
 }
 
 main()
@@ -421,5 +420,5 @@ main()
     process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect()
+    await mongoose.disconnect()
   })
