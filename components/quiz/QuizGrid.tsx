@@ -10,7 +10,7 @@ interface QuizGridProps {
   bookmarkedIds: Set<string>
   userCollections: Collection[]
   isAuthenticated: boolean
-  onBookmarkToggle?: (questionId: string) => void
+  onBookmarkToggle?: (questionId: string) => Promise<{ bookmarked: boolean; error?: string }>
   onAddToCollectionClick?: (questionId: string) => void
 }
 
@@ -26,7 +26,7 @@ export default function QuizGrid({
     new Set(bookmarkedIds)
   )
 
-  function handleBookmarkToggle(questionId: string) {
+  async function handleBookmarkToggle(questionId: string) {
     if (!isAuthenticated) {
       toast("Sign in to save bookmarks", {
         description: "Create a free account to save your progress.",
@@ -38,6 +38,8 @@ export default function QuizGrid({
       return
     }
 
+    const wasBookmarked = optimisticBookmarks.has(questionId)
+
     setOptimisticBookmarks((previous) => {
       const next = new Set(previous)
       if (next.has(questionId)) {
@@ -48,7 +50,20 @@ export default function QuizGrid({
       return next
     })
 
-    onBookmarkToggle?.(questionId)
+    const result = await onBookmarkToggle?.(questionId)
+
+    if (result?.error) {
+      setOptimisticBookmarks((previous) => {
+        const next = new Set(previous)
+        if (wasBookmarked) {
+          next.add(questionId)
+        } else {
+          next.delete(questionId)
+        }
+        return next
+      })
+      toast.error("Failed to update bookmark. Please try again.")
+    }
   }
 
   if (questions.length === 0) {
