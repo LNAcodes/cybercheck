@@ -5,10 +5,16 @@ import { useSession, signOut } from "next-auth/react"
 import { Moon, Sun, User, LogOut, LogIn, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export default function Header() {
   const { theme, setTheme } = useTheme()
   const { data: session } = useSession()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   function handleThemeToggle() {
     setTheme(theme === "dark" ? "light" : "dark")
@@ -81,10 +87,10 @@ export default function Header() {
           variant="ghost"
           size="icon"
           onClick={handleThemeToggle}
-          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          aria-label={mounted && theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           className="text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground"
         >
-          {theme === "dark" ? (
+          {mounted && theme === "dark" ? (
             <Sun className="h-5 w-5" />
           ) : (
             <Moon className="h-5 w-5" />

@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/sonner"
 import AppShell from "@/components/layout/AppShell"
 import SessionProvider from "@/components/auth/SessionProvider"
+import { auth } from "@/lib/auth"
 import "./globals.css"
 
 const geistSans = localFont({
@@ -24,11 +25,13 @@ export const metadata: Metadata = {
     "A quiz app to explore intersectional cybersecurity topics. For students, educators, and professionals.",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = await auth()
+
   return (
     <html
       lang="en"
@@ -36,7 +39,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="antialiased font-sans bg-background text-foreground">
-        <SessionProvider>
+        <SessionProvider session={session}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <AppShell>{children}</AppShell>
             <Toaster position="bottom-center" />

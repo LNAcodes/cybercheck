@@ -4,8 +4,6 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Form,
@@ -17,6 +15,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { loginAction } from "@/actions/auth"
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -26,8 +25,8 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>
 
 export default function LoginForm() {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+  const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null)
   const [isPending, setIsPending] = useState(false)
 
   const form = useForm<LoginValues>({
@@ -38,30 +37,32 @@ export default function LoginForm() {
   async function onSubmit(values: LoginValues) {
     setIsPending(true)
     setError(null)
+    setAttemptsRemaining(null)
 
-    const result = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
-      redirect: false,
-    })
+    const result = await loginAction({ email: values.email, password: values.password })
 
-    if (result?.error) {
-      setError("Invalid email or password")
-      setIsPending(false)
+    if (result.success) {
+      window.location.href = "/auth/callback"
       return
     }
 
-    router.push("/")
-    router.refresh()
+    setError(result.error ?? "Something went wrong")
+    setAttemptsRemaining(result.attemptsRemaining ?? null)
+    setIsPending(false)
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         {error && (
-          <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
-            {error}
-          </p>
+          <div className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md space-y-0.5">
+            <p>{error}</p>
+            {attemptsRemaining !== null && attemptsRemaining > 0 && (
+              <p className="text-xs opacity-80">
+                {attemptsRemaining} attempt{attemptsRemaining !== 1 ? "s" : ""} remaining before your account is locked for 15 minutes.
+              </p>
+            )}
+          </div>
         )}
 
         <FormField

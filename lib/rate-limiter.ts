@@ -32,7 +32,10 @@ function getRecord(ip: string): AttemptRecord {
 
 /** Returns whether the IP is allowed to attempt a login. */
 export function isRateLimited(ip: string): boolean {
-  return getRecord(ip).count >= MAX_ATTEMPTS
+  const record = getRecord(ip)
+  const limited = record.count >= MAX_ATTEMPTS
+  console.log(`[RATE-LIMITER] isRateLimited ip=${ip} count=${record.count}/${MAX_ATTEMPTS} limited=${limited}`)
+  return limited
 }
 
 /** Call after a failed login attempt. */

@@ -2,8 +2,22 @@
 
 import { z } from "zod"
 import bcrypt from "bcryptjs"
+import { AuthError } from "next-auth"
+import { headers } from "next/headers"
+import { signIn } from "@/lib/auth"
 import { dbConnect } from "@/lib/db"
 import { User } from "@/lib/models/User"
+import { remainingAttempts } from "@/lib/rate-limiter"
+
+/** Mirrors the IP-extraction logic in lib/auth.ts so both use the same key. */
+function getClientIpFromHeaders(): string {
+  const headersList = headers()
+  const forwarded = headersList.get("x-forwarded-for")?.split(",")[0].trim()
+  const realIp = headersList.get("x-real-ip")
+  const raw = forwarded ?? realIp ?? "unknown"
+  if (raw === "::1" || raw === "unknown") return "127.0.0.1"
+  return raw
+}
 
 const signupSchema = z.object({
   username: z
@@ -46,5 +60,39 @@ export async function signupAction(data: {
     passwordHash,
   })
 
+  return { success: true }
+}
+
+export async function loginAction(data: {
+  email: string
+  password: string
+}): Promise<{ error?: string; rateLimited?: boolean; attemptsRemaining?: number; success?: boolean }> {
+  try {
+    await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirectTo: "/auth/callback",
+    })
+  } catch (error) {
+    if (error instanceof AuthError) {
+      const code = (error as AuthError & { code?: string }).code
+      if (code === "rate_limited") {
+        return {
+          rateLimited: true,
+          error: "Too many failed attempts. Please wait 15 minutes.",
+        }
+      }
+      const ip = getClientIpFromHeaders()
+      return {
+        error: "Invalid email or password",
+        attemptsRemaining: remainingAttempts(ip),
+      }
+    }
+    // NEXT_REDIRECT means sign-in succeeded and the session cookie is now set.
+    if ((error as { digest?: string }).digest?.startsWith("NEXT_REDIRECT")) {
+      return { success: true }
+    }
+    throw error
+  }
   return { success: true }
 }

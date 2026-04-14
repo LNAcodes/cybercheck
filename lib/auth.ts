@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { dbConnect } from "./db"
@@ -11,16 +11,22 @@ import {
   remainingAttempts,
 } from "./rate-limiter"
 
+class RateLimitedError extends CredentialsSignin {
+  code = "rate_limited"
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function getClientIp(request: Request): string {
-  return (
+  const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
     request.headers.get("x-real-ip") ??
     "unknown"
-  )
+  // Normalize IPv6 loopback and missing headers to a consistent local key
+  if (ip === "::1" || ip === "unknown") return "127.0.0.1"
+  return ip
 }
 
 /** Partially mask an email for safe console output: john@example.com → j***n@example.com */
@@ -74,7 +80,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // --- rate limit check ---
         if (isRateLimited(ip)) {
           logAttempt("RATE_LIMITED", email, ip)
-          return null
+          throw new RateLimitedError()
         }
 
         await dbConnect()

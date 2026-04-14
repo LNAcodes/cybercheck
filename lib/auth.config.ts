@@ -15,6 +15,7 @@ declare module "next-auth" {
 
 export const authConfig = {
   secret: process.env.NEXTAUTH_SECRET,
+  session: { strategy: "jwt" as const },
   pages: {
     signIn: "/auth/login",
   },
@@ -30,9 +31,6 @@ export const authConfig = {
       session.user.id = token.id as string
       session.user.username = token.username as string
       return session
-    },
-    authorized({ auth }) {
-      return !!auth
     },
   },
   providers: [],
