@@ -47,3 +47,19 @@ export interface UserStats {
   approvedSubmissions: number
   pendingSubmissions: number
 }
+
+export interface UserQuestionSubmission {
+  id: string
+  questionText: string
+  optionA: string
+  optionB: string
+  optionC: string
+  correctOption: OptionLetter
+  explanation?: string | null
+  difficulty: Difficulty
+  categoryId: string
+  userId: string
+  status: SubmissionStatus
+  createdAt: Date
+  updatedAt: Date
+}
