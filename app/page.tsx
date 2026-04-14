@@ -1,8 +1,9 @@
+import { auth } from "@/lib/auth"
 import { getApprovedQuestions } from "@/actions/questions"
 import QuizGrid from "@/components/quiz/QuizGrid"
 
 export default async function HomePage() {
-  const questions = await getApprovedQuestions()
+  const [session, questions] = await Promise.all([auth(), getApprovedQuestions()])
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -17,7 +18,7 @@ export default async function HomePage() {
         questions={questions}
         bookmarkedIds={new Set()}
         userCollections={[]}
-        isAuthenticated={false}
+        isAuthenticated={!!session}
       />
     </div>
   )

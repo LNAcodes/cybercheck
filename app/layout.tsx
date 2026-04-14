@@ -3,6 +3,7 @@ import localFont from "next/font/local"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/sonner"
 import AppShell from "@/components/layout/AppShell"
+import SessionProvider from "@/components/auth/SessionProvider"
 import "./globals.css"
 
 const geistSans = localFont({
@@ -35,10 +36,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="antialiased font-sans bg-background text-foreground">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AppShell>{children}</AppShell>
-          <Toaster position="bottom-center" />
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <AppShell>{children}</AppShell>
+            <Toaster position="bottom-center" />
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   )

@@ -2,7 +2,7 @@ import mongoose, { Schema, model, models } from "mongoose"
 
 export interface IUser {
   _id: mongoose.Types.ObjectId
-  name?: string | null
+  username: string
   email: string
   passwordHash: string
   createdAt: Date
@@ -11,8 +11,8 @@ export interface IUser {
 
 const userSchema = new Schema<IUser>(
   {
-    name: { type: String, default: null },
-    email: { type: String, required: true, unique: true },
+    username: { type: String, required: true, unique: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
   },
   { timestamps: true }
