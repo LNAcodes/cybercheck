@@ -1,3 +1,5 @@
+import dotenv from "dotenv"
+dotenv.config({ path: ".env.local" })
 import mongoose from "mongoose"
 import { Category } from "../lib/models/Category"
 import { Question } from "../lib/models/Question"
