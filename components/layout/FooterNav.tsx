@@ -2,10 +2,15 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { Home, Bookmark, FolderOpen, PlusCircle, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const navItems = [
+const guestNavItems = [
+  { href: "/", icon: Home, label: "Home" },
+] as const
+
+const authNavItems = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/bookmarks", icon: Bookmark, label: "Bookmarks" },
   { href: "/collections", icon: FolderOpen, label: "Collections" },
@@ -15,6 +20,8 @@ const navItems = [
 
 export default function FooterNav() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const navItems = session?.user ? authNavItems : guestNavItems
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-primary border-t border-primary/20">

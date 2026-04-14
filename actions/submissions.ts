@@ -8,6 +8,7 @@ import { UserQuestionSubmission } from "@/lib/models/UserQuestionSubmission"
 import { Bookmark } from "@/lib/models/Bookmark"
 import { Collection } from "@/lib/models/Collection"
 import { Question } from "@/lib/models/Question"
+import "@/lib/models/Category"
 import type { IPopulatedQuestion } from "@/lib/models/Question"
 import type {
   UserQuestionSubmission as UserQuestionSubmissionType,

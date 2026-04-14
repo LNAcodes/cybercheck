@@ -95,25 +95,27 @@ export default function QuizCard({
           </Badge>
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBookmarkClick}
-          aria-label={isBookmarked ? "Remove bookmark" : "Bookmark this question"}
-          aria-pressed={isBookmarked}
-          className={cn(
-            "h-8 w-8 shrink-0 transition-colors",
-            isBookmarked
-              ? "text-accent hover:text-accent/80"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          {isBookmarked ? (
-            <BookmarkCheck className="h-5 w-5" aria-hidden="true" />
-          ) : (
-            <Bookmark className="h-5 w-5" aria-hidden="true" />
-          )}
-        </Button>
+        {isAuthenticated && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBookmarkClick}
+            aria-label={isBookmarked ? "Remove bookmark" : "Bookmark this question"}
+            aria-pressed={isBookmarked}
+            className={cn(
+              "h-8 w-8 shrink-0 transition-colors",
+              isBookmarked
+                ? "text-accent hover:text-accent/80"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {isBookmarked ? (
+              <BookmarkCheck className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Bookmark className="h-5 w-5" aria-hidden="true" />
+            )}
+          </Button>
+        )}
       </div>
 
       {/* Question */}

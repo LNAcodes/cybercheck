@@ -3,6 +3,7 @@ import { getApprovedQuestions } from "@/actions/questions"
 import { getBookmarkedQuestionIds, toggleBookmark } from "@/actions/bookmarks"
 import { getUserCollections } from "@/actions/collections"
 import QuizGrid from "@/components/quiz/QuizGrid"
+import GuestBanner from "@/components/auth/GuestBanner"
 
 export default async function HomePage() {
   const [session, questions] = await Promise.all([auth(), getApprovedQuestions()])
@@ -19,6 +20,8 @@ export default async function HomePage() {
           Explore intersectional cybersecurity topics
         </p>
       </div>
+
+      {!session && <GuestBanner />}
 
       <QuizGrid
         questions={questions}

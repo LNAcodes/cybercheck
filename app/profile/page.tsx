@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { getUserStats, getUserSubmissions, getFavoriteTopics } from "@/actions/submissions"
 import ProfileStats from "@/components/profile/ProfileStats"
 import FavoriteTopicsList from "@/components/profile/FavoriteTopicsList"
+import WelcomeToast from "@/components/profile/WelcomeToast"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 
@@ -18,9 +19,15 @@ const STATUS_VARIANT: Record<string, "secondary" | "outline" | "destructive"> = 
   REJECTED: "destructive",
 }
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: { welcome?: string }
+}) {
   const session = await auth()
   if (!session?.user) redirect("/auth/login")
+
+  const showWelcome = searchParams.welcome === "1"
 
   const [stats, submissions, favoriteTopics] = await Promise.all([
     getUserStats(),
@@ -30,6 +37,8 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-8">
+      {showWelcome && <WelcomeToast username={session.user.username ?? session.user.email ?? ""} />}
+
       <div>
         <h2 className="text-2xl font-bold">{session.user.username}</h2>
         <p className="text-muted-foreground text-sm">{session.user.email}</p>

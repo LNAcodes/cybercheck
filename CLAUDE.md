@@ -53,13 +53,21 @@ npm run db:seed      — seed questions
 - JWT sessions — no DB session table, no Mongoose adapter needed
 - Protected: /bookmarks, /collections/*, /add-question, /profile
 - Session: { user: { id, email, username } }
-- Guests can browse / and /try; bookmark attempt → toast prompt
+- Guests can browse / and /try; bookmark + collection icons hidden entirely (no toast, no locked state)
+
+## Guest Experience
+
+UX philosophy: no manipulation, no frustration-based locking.
+
+- Hide bookmark and collection icons from guests entirely — no locked icons, no toast prompts
+- Show a clear inviting banner on the homepage for guests: "Create a free account to bookmark questions, build collections, and track your progress."
+- After successful login → redirect to /profile with a "Welcome back, [username]!" message
 
 ## Quiz Card Behavior
 
 1. Select option → "Show Answer" (green/red feedback) OR "Try Again" (reset)
 2. Card state is local and ephemeral
-3. Bookmark: auth-gated; "Add to Collection": auth-gated
+3. Bookmark: auth-gated; "Add to Collection": auth-gated — icons hidden from guests entirely
 4. Answer feedback uses --color-success and --color-warning CSS vars
 
 ## Collections

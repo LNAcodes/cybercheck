@@ -28,17 +28,6 @@ export default function QuizGrid({
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null)
 
   async function handleBookmarkToggle(questionId: string) {
-    if (!isAuthenticated) {
-      toast("Sign in to save bookmarks", {
-        description: "Create a free account to save your progress.",
-        action: {
-          label: "Sign in",
-          onClick: () => { window.location.href = "/auth/login" },
-        },
-      })
-      return
-    }
-
     const wasBookmarked = optimisticBookmarks.has(questionId)
 
     setOptimisticBookmarks((previous) => {
@@ -68,16 +57,6 @@ export default function QuizGrid({
   }
 
   function handleAddToCollectionClick(questionId: string) {
-    if (!isAuthenticated) {
-      toast("Sign in to use collections", {
-        description: "Create a free account to organise questions.",
-        action: {
-          label: "Sign in",
-          onClick: () => { window.location.href = "/auth/login" },
-        },
-      })
-      return
-    }
     setActiveQuestionId(questionId)
   }
 
