@@ -2,12 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Bookmark, PlusCircle, User } from "lucide-react"
+import { Home, Bookmark, FolderOpen, PlusCircle, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/bookmarks", icon: Bookmark, label: "Bookmarks" },
+  { href: "/collections", icon: FolderOpen, label: "Collections" },
   { href: "/add-question", icon: PlusCircle, label: "Add Question" },
   { href: "/profile", icon: User, label: "Profile" },
 ] as const

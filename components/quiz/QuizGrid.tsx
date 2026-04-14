@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { toast } from "sonner"
 import QuizCard from "./QuizCard"
+import AddToCollectionDialog from "@/components/collections/AddToCollectionDialog"
 import type { QuestionWithCategory, Collection } from "@/types"
 
 interface QuizGridProps {
@@ -10,8 +11,7 @@ interface QuizGridProps {
   bookmarkedIds: Set<string>
   userCollections: Collection[]
   isAuthenticated: boolean
-  onBookmarkToggle?: (questionId: string) => void
-  onAddToCollectionClick?: (questionId: string) => void
+  onBookmarkToggle?: (questionId: string) => Promise<{ bookmarked: boolean; error?: string }>
 }
 
 export default function QuizGrid({
@@ -20,13 +20,14 @@ export default function QuizGrid({
   userCollections,
   isAuthenticated,
   onBookmarkToggle,
-  onAddToCollectionClick,
 }: QuizGridProps) {
   const [optimisticBookmarks, setOptimisticBookmarks] = useState<Set<string>>(
     new Set(bookmarkedIds)
   )
+  const [localCollections, setLocalCollections] = useState<Collection[]>(userCollections)
+  const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null)
 
-  function handleBookmarkToggle(questionId: string) {
+  async function handleBookmarkToggle(questionId: string) {
     if (!isAuthenticated) {
       toast("Sign in to save bookmarks", {
         description: "Create a free account to save your progress.",
@@ -38,6 +39,8 @@ export default function QuizGrid({
       return
     }
 
+    const wasBookmarked = optimisticBookmarks.has(questionId)
+
     setOptimisticBookmarks((previous) => {
       const next = new Set(previous)
       if (next.has(questionId)) {
@@ -48,7 +51,38 @@ export default function QuizGrid({
       return next
     })
 
-    onBookmarkToggle?.(questionId)
+    const result = await onBookmarkToggle?.(questionId)
+
+    if (result?.error) {
+      setOptimisticBookmarks((previous) => {
+        const next = new Set(previous)
+        if (wasBookmarked) {
+          next.add(questionId)
+        } else {
+          next.delete(questionId)
+        }
+        return next
+      })
+      toast.error("Failed to update bookmark. Please try again.")
+    }
+  }
+
+  function handleAddToCollectionClick(questionId: string) {
+    if (!isAuthenticated) {
+      toast("Sign in to use collections", {
+        description: "Create a free account to organise questions.",
+        action: {
+          label: "Sign in",
+          onClick: () => { window.location.href = "/auth/login" },
+        },
+      })
+      return
+    }
+    setActiveQuestionId(questionId)
+  }
+
+  function handleCollectionCreated(collection: Collection) {
+    setLocalCollections((previous) => [...previous, collection])
   }
 
   if (questions.length === 0) {
@@ -61,18 +95,27 @@ export default function QuizGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {questions.map((question) => (
-        <QuizCard
-          key={question.id}
-          question={question}
-          isBookmarked={optimisticBookmarks.has(question.id)}
-          userCollections={userCollections}
-          isAuthenticated={isAuthenticated}
-          onBookmarkToggle={handleBookmarkToggle}
-          onAddToCollectionClick={onAddToCollectionClick}
-        />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {questions.map((question) => (
+          <QuizCard
+            key={question.id}
+            question={question}
+            isBookmarked={optimisticBookmarks.has(question.id)}
+            userCollections={localCollections}
+            isAuthenticated={isAuthenticated}
+            onBookmarkToggle={handleBookmarkToggle}
+            onAddToCollectionClick={handleAddToCollectionClick}
+          />
+        ))}
+      </div>
+
+      <AddToCollectionDialog
+        questionId={activeQuestionId}
+        userCollections={localCollections}
+        onClose={() => setActiveQuestionId(null)}
+        onCollectionCreated={handleCollectionCreated}
+      />
+    </>
   )
 }
