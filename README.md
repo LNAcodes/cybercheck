@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CyberCheck
+
+A full-stack quiz application focused on intersectional cybersecurity topics,
+targeting students and professionals.
+
+## About This Project
+
+CyberCheck started as my very first project during my web development bootcamp —
+a vanilla JavaScript quiz app built without any frameworks or backend.
+
+This repository is a complete rebuild of that original app using a modern
+full-stack, with one specific goal: to learn and critically evaluate agentic
+coding workflows with Claude Code.
+
+Rather than writing every line myself, I used Claude Code to generate the
+application phase by phase — and reviewed, tested, and challenged every single
+output along the way.
+
+## What I Actually Did
+
+This was not vibe coding. At every phase I:
+
+- Read and understood the generated code before approving it
+- Tested each feature manually and identified bugs Claude Code missed
+- Caught a critical security vulnerability: a broken login flow that allowed
+  any password to succeed — which Claude Code did not detect on its own
+- Pushed back on architectural decisions and enforced security best practices
+  (rate limiting, bcrypt, JWT sessions) because this app is about cybersecurity —
+  it would be absurd not to practice what it preaches
+- Connected new concepts (TypeScript, Server Actions, App Router, shadcn/ui)
+  to patterns I already knew from previous projects
+
+## Why This Matters
+
+Knowing how to work with AI agents is becoming a core developer skill.
+But the value is not in letting an agent write your code —
+it is in knowing enough to catch what it gets wrong.
+
+Domain knowledge, critical thinking, and the ability to test and verify
+are what make agentic coding actually useful. Without that, you just have
+fast code with slow bugs.
+
+## Tech Stack
+
+- Next.js 14 (App Router) · React 18 · TypeScript 5
+- Tailwind CSS · shadcn/ui · next-themes
+- Mongoose · MongoDB Atlas
+- NextAuth.js v5 · bcryptjs
+- Zod · React Hook Form
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+cp .env.example .env.local
+# Add your MONGODB_URI and NEXTAUTH_SECRET
+
+npm install
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Meta Note
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The irony is not lost that this README — which reflects on
+the limits of agentic coding — was itself written by an AI.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The difference is that the human read it, agreed with it,
+and chose to keep it.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+That is exactly the point.
