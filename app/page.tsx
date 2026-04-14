@@ -1,12 +1,15 @@
 import { auth } from "@/lib/auth"
 import { getApprovedQuestions } from "@/actions/questions"
 import { getBookmarkedQuestionIds, toggleBookmark } from "@/actions/bookmarks"
+import { getUserCollections } from "@/actions/collections"
 import QuizGrid from "@/components/quiz/QuizGrid"
 
 export default async function HomePage() {
   const [session, questions] = await Promise.all([auth(), getApprovedQuestions()])
 
-  const bookmarkedIds = session ? await getBookmarkedQuestionIds() : new Set<string>()
+  const [bookmarkedIds, userCollections] = session
+    ? await Promise.all([getBookmarkedQuestionIds(), getUserCollections()])
+    : [new Set<string>(), []]
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -20,7 +23,7 @@ export default async function HomePage() {
       <QuizGrid
         questions={questions}
         bookmarkedIds={bookmarkedIds}
-        userCollections={[]}
+        userCollections={userCollections}
         isAuthenticated={!!session}
         onBookmarkToggle={toggleBookmark}
       />

@@ -1,13 +1,17 @@
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { getBookmarkedQuestions, toggleBookmark } from "@/actions/bookmarks"
+import { getUserCollections } from "@/actions/collections"
 import QuizGrid from "@/components/quiz/QuizGrid"
 
 export default async function BookmarksPage() {
   const session = await auth()
   if (!session) redirect("/auth/login")
 
-  const questions = await getBookmarkedQuestions()
+  const [questions, userCollections] = await Promise.all([
+    getBookmarkedQuestions(),
+    getUserCollections(),
+  ])
   const bookmarkedIds = new Set(questions.map((question) => question.id))
 
   return (
@@ -24,7 +28,7 @@ export default async function BookmarksPage() {
       <QuizGrid
         questions={questions}
         bookmarkedIds={bookmarkedIds}
-        userCollections={[]}
+        userCollections={userCollections}
         isAuthenticated={true}
         onBookmarkToggle={toggleBookmark}
       />
